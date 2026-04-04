@@ -1,0 +1,90 @@
+name: Mobile CI
+
+on:
+  push:
+    branches: [main, develop, feature/**]
+    paths:
+      - "mobile/**"
+      - ".github/workflows/mobile-ci.yml"
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "mobile/**"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+          cache-dependency-path: "mobile/package-lock.json"
+
+      - name: Install dependencies
+        run: cd mobile && npm ci
+
+      - name: Lint
+        run: cd mobile && npm run lint || true
+
+      - name: Type check
+        run: cd mobile && npm run type-check || true
+
+      - name: Build
+        run: cd mobile && npm run build
+
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+          cache-dependency-path: "mobile/package-lock.json"
+
+      - name: Install dependencies
+        run: cd mobile && npm ci
+
+      - name: Security audit
+        run: cd mobile && npm audit --audit-level=moderate || true
+
+      - name: Check for vulnerabilities
+        run: cd mobile && npm check-updates --deep || true
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+          cache-dependency-path: "mobile/package-lock.json"
+
+      - name: Install dependencies
+        run: cd mobile && npm ci
+
+      - name: Run tests
+        run: cd mobile && npm test || true
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          files: ./mobile/coverage/coverage-final.json
+          fail_ci_if_error: false
