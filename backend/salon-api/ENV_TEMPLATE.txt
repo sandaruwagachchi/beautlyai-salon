@@ -1,0 +1,91 @@
+#!/bin/bash
+# Environment Variables Template - Local Development
+# Copy this file to .env and update with your actual values
+# WARNING: Never commit actual secrets to version control!
+
+# ========== Database ==========
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/beautylai_dev
+SPRING_DATASOURCE_USERNAME=beautylai_admin
+SPRING_DATASOURCE_PASSWORD=dev_password_123
+SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE=5
+
+# ========== Redis (Optional - uses Caffeine fallback if not available) ==========
+SPRING_REDIS_HOST=localhost
+SPRING_REDIS_PORT=6379
+SPRING_REDIS_TIMEOUT=60000ms
+
+# ========== LocalStack (AWS Services Emulation) ==========
+AWS_REGION=ap-southeast-1
+AWS_ACCESS_KEY_ID=test
+AWS_SECRET_ACCESS_KEY=test
+LOCALSTACK_ENDPOINT=http://localhost:4566
+
+# ========== Stripe (Test Mode) ==========
+# Get your test API key from https://dashboard.stripe.com/test/apikeys
+STRIPE_SECRET_KEY=sk_test_your_test_api_key_here
+STRIPE_WEBHOOK_SECRET=whsec_test_your_webhook_secret_here
+STRIPE_API_VERSION=2024-04-10
+
+# ========== JWT (24-hour expiry in local) ==========
+# Generate a secure random string for production:
+# openssl rand -base64 32
+JWT_SECRET=dev-secret-key-change-in-production-do-not-use-this-key
+JWT_EXPIRATION_HOURS=24
+JWT_REFRESH_EXPIRY_HOURS=720
+
+# ========== Server Configuration ==========
+SERVER_PORT=8080
+SERVER_SERVLET_CONTEXT_PATH=/
+
+# ========== Actuator ==========
+MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics,prometheus
+MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=always
+
+# ========== Logging ==========
+LOGGING_LEVEL_ROOT=INFO
+LOGGING_LEVEL_COM_BEAUTLYAI_SALON=DEBUG
+LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
+
+# ========== Spring Profile ==========
+SPRING_PROFILES_ACTIVE=local
+
+# ========== JVM Memory (for t2.micro container - 1GB RAM) ==========
+# Use: -Xms256m -Xmx512m (256MB initial, 512MB max)
+# For local development: -Xms512m -Xmx2g (512MB initial, 2GB max)
+JAVA_OPTS=-Xms256m -Xmx512m
+
+# ========== Feature Flags ==========
+APP_FEATURES_ENABLE_SWAGGER=true
+APP_FEATURES_ENABLE_ASYNC_PROCESSING=false
+APP_FEATURES_DEBUG_MODE=true
+APP_FEATURES_S3_ENABLED=true
+APP_FEATURES_SQS_ENABLED=true
+APP_FEATURES_SNS_ENABLED=true
+APP_FEATURES_STRIPE_ENABLED=true
+
+# ========== CORS Configuration ==========
+APP_SECURITY_CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4200,http://localhost:8081
+APP_SECURITY_CORS_ALLOWED_METHODS=GET,POST,PUT,DELETE,OPTIONS,PATCH
+APP_SECURITY_CORS_ALLOW_CREDENTIALS=true
+
+# ========== Flyway (Database Migrations) ==========
+SPRING_FLYWAY_ENABLED=false
+
+# ========== Cache ==========
+SPRING_CACHE_TYPE=caffeine
+SPRING_CACHE_CAFFEINE_SPEC=maximumSize=500,expireAfterWrite=300s
+
+# ========== Jackson (JSON Processing) ==========
+SPRING_JACKSON_SERIALIZATION_WRITE_DATES_AS_TIMESTAMPS=false
+SPRING_JACKSON_SERIALIZATION_INDENT_OUTPUT=true
+SPRING_JACKSON_DESERIALIZATION_FAIL_ON_UNKNOWN_PROPERTIES=false
+
+# ========== File Upload Limits ==========
+SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=10MB
+SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=10MB
+
+# ========== Application Info ==========
+APP_NAME=BeautlyAI Salon API
+APP_VERSION=1.0.0-LOCAL
+APP_DESCRIPTION=Salon management API - Local Development
+

@@ -1,0 +1,48 @@
+# Maven
+# IMPORTANT: Do NOT exclude .mvn, mvnw, mvnw.cmd - they are needed for build!
+target/
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.code-workspace
+.classpath
+.project
+.settings/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Build artifacts
+.DS_Store
+*.class
+*.jar
+*.log
+
+# Documentation (not needed in image)
+*.md
+docs/
+
+# Test files
+src/test/
+
+# Node/Frontend (if applicable)
+node_modules/
+.npm
+dist/
+build/
+
+# Environment
+.env
+.env.local
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
