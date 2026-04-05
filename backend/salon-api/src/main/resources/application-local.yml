@@ -65,3 +65,4 @@ logging:
 
 # JVM memory settings for t2.micro (1GB RAM):
 # -Xms256m -Xmx512m
+# application:
