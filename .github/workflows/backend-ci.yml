@@ -1,0 +1,112 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, develop, feature/**]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "backend/**"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java-version: ["17", "21"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: "temurin"
+          cache: maven
+
+      - name: Build with Maven
+        run: cd backend/salon-api && mvn clean package -DskipTests
+
+      - name: Run tests
+        run: cd backend/salon-api && mvn test
+
+      - name: Generate coverage report
+        run: cd backend/salon-api && mvn jacoco:report || true
+
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Check code style with Checkstyle
+        run: cd backend/salon-api && mvn checkstyle:check || true
+
+      - name: Analyze with SpotBugs
+        run: cd backend/salon-api && mvn spotbugs:check || true
+
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Run OWASP Dependency Check
+        run: cd backend/salon-api && mvn dependency-check:check || true
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: sbom
+          path: backend/salon-api/target/bom.xml
+
+  build-docker:
+    runs-on: ubuntu-latest
+    needs: [build-and-test]
+    if: github.event_name == 'push' && github.ref_protected
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Build JAR
+        run: cd backend/salon-api && mvn clean package -DskipTests
+
+      - name: Create Dockerfile
+        run: |
+          cat > backend/salon-api/Dockerfile << 'EOF'
+          FROM eclipse-temurin:21-jre-alpine
+          WORKDIR /app
+          COPY target/*.jar app.jar
+          EXPOSE 8080
+          ENTRYPOINT ["java", "-jar", "app.jar"]
+          EOF
+
+      - name: Build Docker image
+        run: cd backend/salon-api && docker build -t salon-api:latest .
