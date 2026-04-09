@@ -1,0 +1,88 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.example.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Node / Mobile
+mobile/node_modules/
+mobile/npm-debug.log*
+mobile/yarn-error.log*
+mobile/.expo/
+mobile/.expo-shared/
+mobile/dist/
+mobile/build/
+
+# Backend / Java
+backend/salon-api/target/
+backend/salon-api/.classpath
+backend/salon-api/.factorypath
+backend/salon-api/.project
+backend/salon-api/.settings/
+backend/salon-api/*.iml
+backend/salon-api/*.jar
+backend/salon-api/build/
+backend/salon-api/.gradle/
+
+# Maven
+backend/salon-api/*.lock.properties
+backend/salon-api/dependency-reduced-pom.xml
+backend/salon-api/pom.xml.tag
+backend/salon-api/pom.xml.releaseBackup
+backend/salon-api/pom.xml.versionsBackup
+backend/salon-api/pom.xml.next
+backend/salon-api/release.properties
+backend/salon-api/versions.txt
+
+# Terraform
+infra/**/.terraform/
+infra/**/*.tfstate
+infra/**/*.tfstate.*
+infra/**/.terraform.lock.hcl
+infra/**/.tfvars
+infra/**/crash.log
+infra/**/crash.*.log
+infra/**/.DS_Store
+infra/**/*.backup
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+*.log
+logs/
+*.err
+*.out
+
+# Secrets (should never be committed)
+.aws/
+aws_credentials
+aws_config
+
+# Coverage reports
+coverage/
+lcov.info
+*coverage*
+
+# OS
+*.tmp
+*.temp
+

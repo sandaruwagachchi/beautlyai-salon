@@ -1,14 +1,14 @@
 -- PostgreSQL initialization script for BeautlyAI Salon API local development
 -- This script runs automatically when PostgreSQL container starts for the first time
 
--- Create the custom role/user
-CREATE ROLE beautlyai_admin WITH LOGIN PASSWORD 'dev_password_123' SUPERUSER CREATEDB;
+-- The official postgres image already creates POSTGRES_USER and POSTGRES_DB.
+-- Keep this script idempotent so container restarts or volume resets don't fail.
 
--- Create the application database owned by beautlyai_admin
-CREATE DATABASE beautlyai_dev WITH OWNER beautlyai_admin;
-
--- Grant privileges on database
-GRANT ALL PRIVILEGES ON DATABASE beautlyai_dev TO beautlyai_admin;
+-- Ensure the application database exists before we connect to it
+SELECT format('CREATE DATABASE %I OWNER %I', 'beautylai_dev', 'beautlyai_admin')
+WHERE NOT EXISTS (
+	SELECT 1 FROM pg_database WHERE datname = 'beautylai_dev'
+)\gexec
 
 -- Connect to beautlyai_dev and set up schema privileges
 \connect beautlyai_dev
