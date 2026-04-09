@@ -1,18 +1,17 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: salon-postgres
+    container_name: beautlyai-postgres
     environment:
-      POSTGRES_DB: beautylai_dev
+      POSTGRES_DB: beautlyai_dev
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
+      POSTGRES_INIT_ARGS: "-c shared_preload_libraries=''"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-db:/docker-entrypoint-initdb.d
+      - ./init-db/01-create-app-user.sql:/docker-entrypoint-initdb.d/01-create-app-user.sql
     networks:
       - salon-network
     healthcheck:
@@ -22,16 +21,20 @@ services:
       retries: 5
     restart: unless-stopped
 
-  adminer:
-    image: adminer:latest
-    container_name: salon-adminer
+  localstack:
+    image: localstack/localstack:3.0  # Community Edition (NO PRO!)
+    container_name: beautlyai-localstack
     ports:
-      - "8082:8080"
+      - "4566:4566"
     environment:
-      ADMINER_DEFAULT_SERVER: postgres
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - SERVICES=s3,sqs,sns
+      - DEBUG=0
+      - PERSISTENCE=0
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - DEFAULT_REGION=ap-southeast-1
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
       - salon-network
     restart: unless-stopped
@@ -43,4 +46,3 @@ volumes:
 networks:
   salon-network:
     driver: bridge
-

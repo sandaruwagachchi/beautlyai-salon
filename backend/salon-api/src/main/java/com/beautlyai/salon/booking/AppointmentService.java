@@ -2,9 +2,9 @@ package com.beautlyai.salon.booking;
 
 import com.beautlyai.salon.booking.dto.AppointmentResponse;
 import com.beautlyai.salon.booking.dto.CreateAppointmentRequest;
+import com.beautlyai.salon.booking.exception.AppointmentNotFoundException;
+import com.beautlyai.salon.booking.exception.InvalidAppointmentTransitionException;
 import com.beautlyai.salon.booking.mapper.AppointmentMapper;
-import com.beautlyai.salon.common.exception.InvalidAppointmentStateException;
-import com.beautlyai.salon.common.exception.ResourceNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
@@ -31,7 +31,7 @@ public class AppointmentService {
     @Transactional
     public AppointmentResponse create(CreateAppointmentRequest request) {
         if (!request.getEndTime().isAfter(request.getStartTime())) {
-            throw new InvalidAppointmentStateException("endTime must be after startTime");
+            throw new InvalidAppointmentTransitionException("endTime must be after startTime");
         }
 
         Appointment appointment = appointmentMapper.toEntity(request);
@@ -121,7 +121,7 @@ public class AppointmentService {
             case CANCELLED -> cancel(id);
             case NO_SHOW -> markNoShow(id);
             case IN_PROGRESS -> transition(id, AppointmentStatus.IN_PROGRESS);
-            case BOOKED -> throw new InvalidAppointmentStateException("Cannot set appointment back to BOOKED");
+            case BOOKED -> throw new InvalidAppointmentTransitionException("Cannot set appointment back to BOOKED");
         };
     }
 
@@ -169,7 +169,7 @@ public class AppointmentService {
     private Appointment fetchById(UUID id) {
         return appointmentRepository
             .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Appointment not found: " + id));
+            .orElseThrow(() -> new AppointmentNotFoundException(id));
     }
 
     private void validateTransition(AppointmentStatus current, AppointmentStatus target) {
@@ -190,9 +190,7 @@ public class AppointmentService {
         };
 
         if (!allowedTargets.contains(target)) {
-            throw new InvalidAppointmentStateException(
-                "Cannot transition appointment from %s to %s".formatted(current, target)
-            );
+            throw new InvalidAppointmentTransitionException(current, target);
         }
     }
 }

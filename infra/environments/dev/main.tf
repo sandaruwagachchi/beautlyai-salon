@@ -53,6 +53,101 @@ module "sqs_sns" {
   env = var.env
 }
 
+# ECR repositories for backend services
+resource "aws_ecr_repository" "beautlyai_api" {
+  name                 = "beautlyai-api"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+}
+
+resource "aws_ecr_repository" "beautlyai_worker" {
+  name                 = "beautlyai-worker"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "beautlyai_api" {
+  repository = aws_ecr_repository.beautlyai_api.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep only last 10 untagged images"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "imageCountMoreThan"
+          countNumber = 10
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Expire images older than 30 days"
+        selection = {
+          tagStatus   = "any"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 30
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_ecr_lifecycle_policy" "beautlyai_worker" {
+  repository = aws_ecr_repository.beautlyai_worker.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep only last 10 untagged images"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "imageCountMoreThan"
+          countNumber = 10
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Expire images older than 30 days"
+        selection = {
+          tagStatus   = "any"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 30
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
 # Security Group for RDS
 resource "aws_security_group" "rds_sg" {
   name_prefix = "beautlyai-rds-"
@@ -159,5 +254,15 @@ output "sqs_notification_queue_url" {
 output "sns_topic_arn" {
   value       = module.sqs_sns.notification_topic_arn
   description = "SNS notification topic ARN"
+}
+
+output "ecr_beautlyai_api_repository_url" {
+  value       = aws_ecr_repository.beautlyai_api.repository_url
+  description = "ECR repository URL for beautlyai-api"
+}
+
+output "ecr_beautlyai_worker_repository_url" {
+  value       = aws_ecr_repository.beautlyai_worker.repository_url
+  description = "ECR repository URL for beautlyai-worker"
 }
 
