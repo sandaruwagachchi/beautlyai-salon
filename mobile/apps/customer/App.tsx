@@ -1,16 +1,17 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { PaperProvider } from 'react-native-paper';
-import { navigationRef, setAuthRouteName } from '@beautlyai/api';
-import CustomerNavigator from './src/navigation/CustomerNavigator';
+import { navigationRef, setAuthRouteName, setHomeRouteName } from '@beautlyai/api';
+import RootNavigator from './src/navigation/RootNavigator';
 
-setAuthRouteName('CustomerHome');
+setAuthRouteName('Login');
+setHomeRouteName('Home');
 
 const App: React.FC = () => {
   return (
     <PaperProvider>
       <NavigationContainer ref={navigationRef}>
-        <CustomerNavigator />
+        <RootNavigator />
       </NavigationContainer>
     </PaperProvider>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Alert } from 'react-native';
+import { Alert, View } from 'react-native';
+import { ActivityIndicator } from 'react-native-paper';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '@beautlyai/auth';
 import { tokenService } from '@beautlyai/auth';
@@ -18,7 +19,25 @@ export type BusinessStackParamList = {
 const Stack = createNativeStackNavigator<BusinessStackParamList>();
 
 const RootNavigator: React.FC = () => {
-  const { user, token, clearAuth } = useAuthStore();
+  const { user, token, isBootstrapping, setBootstrapping, setAuth, clearAuth } = useAuthStore();
+
+  React.useEffect(() => {
+    const bootstrap = async (): Promise<void> => {
+      try {
+        const session = await tokenService.readSession();
+        if (session) {
+          setAuth(session.token, {
+            username: session.username,
+            role: session.role,
+          });
+        }
+      } finally {
+        setBootstrapping(false);
+      }
+    };
+
+    void bootstrap();
+  }, [setAuth, setBootstrapping]);
 
   React.useEffect(() => {
     const guard = async (): Promise<void> => {
@@ -39,8 +58,16 @@ const RootNavigator: React.FC = () => {
     void guard();
   }, [token, user?.role, clearAuth]);
 
+  if (isBootstrapping) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator key={token && user ? 'business-app' : 'business-auth'} screenOptions={{ headerShown: false }}>
       {!token || !user ? (
         <Stack.Screen name="Login" component={LoginScreen} />
       ) : user.role === 'STAFF' ? (

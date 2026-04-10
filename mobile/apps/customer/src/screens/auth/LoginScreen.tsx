@@ -1,17 +1,21 @@
 import React from 'react';
 import { View, StyleSheet, Platform, Pressable } from 'react-native';
 import { HelperText, Text, TextInput } from 'react-native-paper';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AxiosError } from 'axios';
 import { authApi } from '@beautlyai/api';
-import { useAuthStore } from '@beautlyai/auth';
-import { tokenService } from '@beautlyai/auth';
+import { useAuthStore, tokenService } from '@beautlyai/auth';
+import type { CustomerAuthStackParamList } from '../../navigation/RootNavigator';
 
-const LoginScreen: React.FC = () => {
+type Props = NativeStackScreenProps<CustomerAuthStackParamList, 'Login'>;
+
+const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const idPrefix = React.useId().replace(/[:]/g, '_');
-  const { setAuth } = useAuthStore();
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const { setAuth } = useAuthStore();
 
   const onLogin = async (): Promise<void> => {
     if (!username.trim() || !password.trim()) {
@@ -39,11 +43,27 @@ const LoginScreen: React.FC = () => {
         role: response.role,
       });
 
+      // On web, force a hard transition so bootstrap reads persisted session and loads app stack.
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         window.location.reload();
       }
-    } catch {
-      setError('Invalid credentials. Please try again.');
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string; error?: string }>;
+      const status = axiosErr.response?.status;
+      const backendMessage =
+        axiosErr.response?.data?.message ??
+        axiosErr.response?.data?.error ??
+        axiosErr.message;
+
+      if (status === 401) {
+        setError('Invalid credentials. Please try again.');
+      } else if (status === 403) {
+        setError('Access denied by server. Check backend security/CORS settings.');
+      } else if (!axiosErr.response) {
+        setError('Unable to reach server. Check backend URL and network connection.');
+      } else {
+        setError(`Login failed (${status ?? 'unknown'}): ${backendMessage}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -51,15 +71,14 @@ const LoginScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium">BeautlyAI Business</Text>
-      <Text variant="bodyMedium">Sign in with staff, owner, or admin credentials</Text>
+      <Text variant="headlineMedium">Welcome back</Text>
       <TextInput
         label="Username"
         mode="outlined"
         autoCapitalize="none"
         autoComplete="username"
         textContentType={Platform.OS === 'ios' ? 'username' : 'none'}
-        nativeID={`${idPrefix}-business-login-username`}
+        nativeID={`${idPrefix}-login-username`}
         value={username}
         onChangeText={setUsername}
       />
@@ -69,7 +88,7 @@ const LoginScreen: React.FC = () => {
         secureTextEntry
         autoComplete="current-password"
         textContentType={Platform.OS === 'ios' ? 'password' : 'none'}
-        nativeID={`${idPrefix}-business-login-password`}
+        nativeID={`${idPrefix}-login-password`}
         value={password}
         onChangeText={setPassword}
       />
@@ -83,6 +102,9 @@ const LoginScreen: React.FC = () => {
       >
         <Text style={styles.primaryButtonText}>{loading ? 'Loading...' : 'Login'}</Text>
       </Pressable>
+      <Pressable onPress={() => navigation.navigate('Register')} disabled={loading}>
+        <Text style={styles.secondaryButtonText}>Create account</Text>
+      </Pressable>
     </View>
   );
 };
@@ -92,7 +114,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 16,
-    gap: 12,
+    gap: 10,
   },
   primaryButton: {
     backgroundColor: '#6c4fb2',
@@ -103,6 +125,12 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#ffffff',
     fontWeight: '600',
+  },
+  secondaryButtonText: {
+    color: '#6c4fb2',
+    textAlign: 'center',
+    fontWeight: '500',
+    paddingVertical: 8,
   },
   buttonPressed: {
     opacity: 0.85,

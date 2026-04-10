@@ -4,8 +4,8 @@ import axios, {
   InternalAxiosRequestConfig,
   type AxiosInstance,
 } from 'axios';
-import * as SecureStore from 'expo-secure-store';
 import { navigateToAuth } from './navigationRef';
+import { tokenService } from '@beautlyai/auth';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -15,7 +15,7 @@ const client: AxiosInstance = axios.create({
 });
 
 client.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-  const token = await SecureStore.getItemAsync('jwt_token');
+  const token = await tokenService.readToken();
 
   if (token) {
     const headers =
@@ -34,8 +34,7 @@ client.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      await SecureStore.deleteItemAsync('jwt_token');
-      await SecureStore.deleteItemAsync('user_role');
+      await tokenService.clear();
       navigateToAuth();
     }
 

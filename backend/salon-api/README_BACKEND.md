@@ -113,6 +113,27 @@ Get-Content startup.log -Tail 100
 docker-compose logs postgres
 ```
 
+### Auth Endpoints
+| Method | Endpoint | Notes |
+|--------|----------|-------|
+| `POST` | `/api/v1/public/auth/register` | Create a new customer account |
+| `POST` | `/api/v1/public/auth/login` | Sign in and receive a JWT |
+
+> Tip: Opening `/api/v1/public/auth/register` in a browser sends a `GET` request. Use a POST client such as `Invoke-RestMethod`, Postman, or your app.
+
+```powershell
+$body = @{
+  username = "john123"
+  password = "password123"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+  -Uri "http://localhost:8080/api/v1/public/auth/register" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body $body
+```
+
 ### Clean & Restart
 ```powershell
 Get-Process java | Stop-Process -Force

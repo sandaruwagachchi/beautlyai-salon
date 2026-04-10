@@ -9,7 +9,7 @@
   "scripts": {
     "customer": "yarn workspace @beautlyai/customer start",
     "business": "yarn workspace @beautlyai/business start",
-    "build:all": "yarn workspace @beautlyai/customer build ; yarn workspace @beautlyai/business build",
+    "build:all": "yarn workspace @beautlyai/customer build && yarn workspace @beautlyai/business build",
     "lint": "eslint apps/ packages/ --ext .ts,.tsx",
     "typecheck": "tsc --noEmit --project tsconfig.base.json",
     "test": "jest",
