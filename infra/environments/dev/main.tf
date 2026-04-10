@@ -251,9 +251,29 @@ output "sqs_notification_queue_url" {
   description = "SQS notification queue URL"
 }
 
+output "sqs_notification_dlq_url" {
+  value       = module.sqs_sns.notification_dlq_url
+  description = "SQS notification dead-letter queue URL"
+}
+
 output "sns_topic_arn" {
   value       = module.sqs_sns.notification_topic_arn
-  description = "SNS notification topic ARN"
+  description = "Legacy SNS topic ARN alias"
+}
+
+output "sns_sms_topic_arn" {
+  value       = module.sqs_sns.sms_topic_arn
+  description = "SNS SMS alerts topic ARN"
+}
+
+output "sns_push_topic_arn" {
+  value       = module.sqs_sns.push_topic_arn
+  description = "SNS push notifications topic ARN"
+}
+
+output "notification_publisher_policy_arn" {
+  value       = module.sqs_sns.notification_publisher_policy_arn
+  description = "IAM policy ARN for notification publishing"
 }
 
 output "ecr_beautlyai_api_repository_url" {

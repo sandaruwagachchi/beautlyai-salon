@@ -9,19 +9,26 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import StaffHomeScreen from '../screens/staff/StaffHomeScreen';
 
+type StaffTabParamList = {
+  Home: undefined;
+  Schedule: undefined;
+  Clients: undefined;
+  Profile: undefined;
+};
+
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<StaffTabParamList>();
 
 const StaffNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
-          let iconName: any;
+          let iconName: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
           if (route.name === 'Home') iconName = 'home';
           else if (route.name === 'Schedule') iconName = 'calendar';
           else if (route.name === 'Clients') iconName = 'account-multiple';
-          else if (route.name === 'Profile') iconName = 'account';
+          else iconName = 'account';
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
       })}

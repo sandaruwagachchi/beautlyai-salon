@@ -209,17 +209,6 @@ resource "aws_ssm_parameter" "db_password" {
   }
 }
 
-resource "aws_ssm_parameter" "stripe_secret_key" {
-  name  = "/beautlyai/dev/stripe/secret_key"
-  type  = "SecureString"
-  value = var.stripe_secret_key  # Pass via terraform.tfvars
-
-  tags = {
-    Purpose     = "Stripe API secret key"
-    Environment = var.environment
-  }
-}
-
 resource "aws_ssm_parameter" "jwt_secret" {
   name  = "/beautlyai/dev/jwt/secret"
   type  = "SecureString"
@@ -278,12 +267,6 @@ output "ecr_repositories" {
 #   description = "PostgreSQL password"
 # }
 #
-# variable "stripe_secret_key" {
-#   type        = string
-#   sensitive   = true
-#   description = "Stripe secret API key"
-# }
-#
 # variable "jwt_secret" {
 #   type        = string
 #   sensitive   = true
@@ -298,12 +281,10 @@ output "ecr_repositories" {
 #
 # 2. Add secret variables to variables.tf:
 #    variable "db_password" { type = string; sensitive = true }
-#    variable "stripe_secret_key" { type = string; sensitive = true }
 #    variable "jwt_secret" { type = string; sensitive = true }
 #
 # 3. Create terraform.tfvars with secrets:
 #    db_password       = "dev_password_123"
-#    stripe_secret_key = "sk_test_..."
 #    jwt_secret        = "your-jwt-secret-here"
 #
 # 4. Apply:

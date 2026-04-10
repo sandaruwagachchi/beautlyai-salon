@@ -101,7 +101,7 @@ D:\GitHub\beautlyai-salon\backend\salon-api\terraform\
       - 3 SQS queues (notifications, email, export-jobs)
       - 3 SNS topics (alerts, notifications, booking-events)
       - 3 ECR repositories (backend, frontend, worker)
-      - 3 SSM parameters (db-password, stripe-secret, jwt-secret)
+      - 2 SSM parameters (db-password, jwt-secret)
     - Data sources and additional outputs
     - Usage instructions
 

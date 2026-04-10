@@ -74,7 +74,7 @@ beautlyai-salon/
 │   │   │   │   │   ├── booking/     # Appointment domain
 │   │   │   │   │   ├── client/      # CRM (customer/staff profiles)
 │   │   │   │   │   ├── staff/       # Staff & payroll management
-│   │   │   │   │   ├── payment/     # Stripe integration
+│   │   │   │   │   ├── payment/     # Not used in this project
 │   │   │   │   │   ├── notification/# SMS, email, push notifications
 │   │   │   │   │   └── common/      # Shared utilities, exception handling
 │   │   │   │   └── resources/
@@ -163,7 +163,7 @@ Database:
 
 AWS Integration:
   - AWS SDK 2.25.0 (S3, SQS, SNS, SSM)
-  - Stripe Java (payment processing)
+  - No payment gateway is included in the current scope
 
 Development:
   - Maven (dependency management)
@@ -266,11 +266,7 @@ aws ssm put-parameter \
   --type "SecureString" \
   --value "your_jwt_secret_here"
 
-# Stripe Secret Key (test key for development)
-aws ssm put-parameter \
-  --name "/beautlyai/dev/stripe/secret_key" \
-  --type "SecureString" \
-  --value "sk_test_..."
+# No payment gateway secrets are stored in SSM for this project
 
 # Verify
 aws ssm get-parameters-by-path \

@@ -164,7 +164,7 @@ terraform apply -var-file=terraform.tfvars
 - 3 SQS queues (notifications, email, export-jobs)
 - 3 SNS topics (alerts, notifications, booking-events)
 - 3 ECR repositories (backend, frontend, worker)
-- 3 SSM parameters (db-password, stripe-secret, jwt-secret)
+- 2 SSM parameters (db-password, jwt-secret)
 
 **Usage**: Copy to `resources.tf` if you want complete infrastructure:
 ```powershell
@@ -173,7 +173,7 @@ terraform plan
 terraform apply
 ```
 
-**Requires**: Additional variables for secrets (db_password, stripe_secret_key, jwt_secret)
+**Requires**: Additional variables for secrets (db_password, jwt_secret)
 
 ---
 

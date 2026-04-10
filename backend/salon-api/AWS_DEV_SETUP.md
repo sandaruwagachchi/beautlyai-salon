@@ -76,7 +76,7 @@ This document outlines the AWS IAM setup for local development of the BeautlyAI 
 **Resources**:
 - `arn:aws:ssm:*:*:parameter/beautlyai/dev/*`
 
-**Use Case**: Reading environment secrets (DB password, Stripe keys, JWT secret) from Parameter Store.
+**Use Case**: Reading environment secrets (DB password, JWT secret, and other app secrets) from Parameter Store.
 
 #### 5. **ECR (Elastic Container Registry)**
 - `ecr:GetDownloadUrlForLayer` — Download image layers
@@ -225,15 +225,6 @@ aws ssm put-parameter \
   --name "/beautlyai/dev/db/password" \
   --type "SecureString" \
   --value "your_db_password_here" \
-  --overwrite
-```
-
-Store Stripe secret key:
-```bash
-aws ssm put-parameter \
-  --name "/beautlyai/dev/stripe/secret_key" \
-  --type "SecureString" \
-  --value "sk_test_..." \
   --overwrite
 ```
 

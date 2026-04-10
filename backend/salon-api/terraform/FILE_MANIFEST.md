@@ -207,7 +207,7 @@ s3_buckets = [ "beautlyai-dev-uploads", ... ]
   - Topic attributes and tags
 - 3 ECR repository resources (backend, frontend, worker)
   - Image scanning configuration
-- 3 SSM Parameter resources (db-password, stripe-secret, jwt-secret)
+- 2 SSM Parameter resources (db-password, jwt-secret)
   - Secure string encryption
 - Data source for current AWS account
 - Additional outputs for S3, SQS, SNS, ECR
@@ -225,7 +225,6 @@ terraform apply
 
 **Requires**: Additional variables for secrets
 - `db_password`
-- `stripe_secret_key`
 - `jwt_secret`
 
 **Dependencies**: variables.tf, provider.tf

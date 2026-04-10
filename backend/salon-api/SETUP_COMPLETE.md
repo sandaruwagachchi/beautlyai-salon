@@ -65,12 +65,6 @@ aws ssm put-parameter \
   --type "SecureString" \
   --value "your_db_password"
 
-# Stripe secret key
-aws ssm put-parameter \
-  --name "/beautlyai/dev/stripe/secret_key" \
-  --type "SecureString" \
-  --value "sk_test_..."
-
 # JWT secret
 aws ssm put-parameter \
   --name "/beautlyai/dev/jwt/secret" \
@@ -160,7 +154,7 @@ Created:      2026-04-08T09:34:00+00:00
 - SSM parameter paths
 - Database connection settings
 - Spring Boot configuration
-- Stripe & JWT settings
+- JWT settings
 
 ---
 

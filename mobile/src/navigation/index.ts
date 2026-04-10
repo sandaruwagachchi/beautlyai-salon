@@ -8,4 +8,5 @@ export { default as CustomerNavigator } from './CustomerNavigator';
 export { default as StaffNavigator } from './StaffNavigator';
 export { default as OwnerNavigator } from './OwnerNavigator';
 export { default as AdminNavigator } from './AdminNavigator';
+export type { CustomerStackParamList, RootStackParamList } from './types';
 

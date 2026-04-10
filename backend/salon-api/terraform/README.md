@@ -167,8 +167,7 @@ s3_buckets = [
 sqs_queues = [
   "beautlyai-dev-notifications",
   "beautlyai-dev-email",
-  "beautlyai-dev-export-jobs",
-  "beautlyai-dev-payment-processing"
+  "beautlyai-dev-export-jobs"
 ]
 ```
 

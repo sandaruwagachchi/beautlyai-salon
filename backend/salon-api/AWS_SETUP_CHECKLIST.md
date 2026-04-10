@@ -51,7 +51,6 @@
   - [ ] `beautlyai-dev-static` (public read)
 - [ ] Store secrets in AWS SSM Parameter Store:
   - [ ] `/beautlyai/dev/db/password`
-  - [ ] `/beautlyai/dev/stripe/secret_key`
   - [ ] `/beautlyai/dev/jwt/secret`
 - [ ] Test S3 access: `aws s3 ls --profile beautlyai-dev`
 - [ ] Test SSM access: `aws ssm get-parameters-by-path --path "/beautlyai/dev/" --profile beautlyai-dev`
@@ -89,7 +88,6 @@ Action: Run .\setup-aws-dev.ps1
 | Parameter | Status | Next Step |
 |-----------|--------|-----------|
 | `/beautlyai/dev/db/password` | ❌ Not created | Create with DB password |
-| `/beautlyai/dev/stripe/secret_key` | ❌ Not created | Create with Stripe key |
 | `/beautlyai/dev/jwt/secret` | ❌ Not created | Create with JWT secret |
 
 ### Spring Boot Application Properties

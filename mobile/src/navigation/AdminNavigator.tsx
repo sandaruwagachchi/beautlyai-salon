@@ -9,20 +9,28 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AdminHomeScreen from '../screens/admin/AdminHomeScreen';
 
+type AdminTabParamList = {
+  Home: undefined;
+  Users: undefined;
+  Salons: undefined;
+  Reports: undefined;
+  Settings: undefined;
+};
+
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<AdminTabParamList>();
 
 const AdminNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
-          let iconName: any;
+          let iconName: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
           if (route.name === 'Home') iconName = 'home';
           else if (route.name === 'Users') iconName = 'account-multiple';
           else if (route.name === 'Salons') iconName = 'store';
           else if (route.name === 'Reports') iconName = 'file-document';
-          else if (route.name === 'Settings') iconName = 'cog';
+          else iconName = 'cog';
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
       })}

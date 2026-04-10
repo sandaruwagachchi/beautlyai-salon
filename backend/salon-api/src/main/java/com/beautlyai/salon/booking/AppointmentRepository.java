@@ -41,5 +41,19 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
         @Param("clientId") UUID clientId,
         @Param("from") LocalDateTime from
     );
+
+    /**
+     * Finds appointments in a time window by status set.
+     *
+     * @param from inclusive lower bound
+     * @param to inclusive upper bound
+     * @param statuses allowed appointment statuses
+     * @return appointments ordered by start time ascending
+     */
+    List<Appointment> findByStartTimeBetweenAndStatusInOrderByStartTimeAsc(
+        LocalDateTime from,
+        LocalDateTime to,
+        Collection<AppointmentStatus> statuses
+    );
 }
 

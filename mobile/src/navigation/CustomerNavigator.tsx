@@ -5,42 +5,43 @@
 
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CustomerHomeScreen from '../screens/customer/CustomerHomeScreen';
+import ServiceSelectionScreen from '../screens/customer/ServiceSelectionScreen';
+import DateTimeSelectionScreen from '../screens/customer/DateTimeSelectionScreen';
+import BookingConfirmScreen from '../screens/customer/BookingConfirmScreen';
+import type { CustomerStackParamList } from './types';
+import { BOOKING_TEXT } from '../constants/booking';
 
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator<CustomerStackParamList>();
 
 const CustomerNavigator: React.FC = () => {
   return (
-    <Tab.Navigator
+    <Stack.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
-          let iconName: any;
-          if (route.name === 'Home') iconName = 'home';
-          else if (route.name === 'Bookings') iconName = 'calendar';
-          else if (route.name === 'Profile') iconName = 'account';
-          return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
-        },
+        headerShown: true,
       })}
     >
-      <Tab.Screen
-        name="Home"
+      <Stack.Screen
+        name="CustomerHome"
         component={CustomerHomeScreen}
-        options={{ title: 'Home', headerShown: false }}
+        options={{ title: BOOKING_TEXT.customerHomeNavTitle }}
       />
-      <Tab.Screen
-        name="Bookings"
-        component={CustomerHomeScreen}
-        options={{ title: 'My Bookings', headerShown: false }}
+      <Stack.Screen
+        name="ServiceSelection"
+        component={ServiceSelectionScreen}
+        options={{ title: BOOKING_TEXT.serviceSelectionTitle }}
       />
-      <Tab.Screen
-        name="Profile"
-        component={CustomerHomeScreen}
-        options={{ title: 'Profile', headerShown: false }}
+      <Stack.Screen
+        name="DateTimeSelection"
+        component={DateTimeSelectionScreen}
+        options={{ title: BOOKING_TEXT.dateTimeSelectionTitle }}
       />
-    </Tab.Navigator>
+      <Stack.Screen
+        name="BookingConfirm"
+        component={BookingConfirmScreen}
+        options={{ title: BOOKING_TEXT.bookingConfirmTitle }}
+      />
+    </Stack.Navigator>
   );
 };
 
