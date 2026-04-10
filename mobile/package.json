@@ -1,17 +1,19 @@
 {
-  "name": "mobile",
+  "name": "beautlyai-mobile",
   "version": "1.0.0",
-  "main": "index.ts",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0",
-    "type-check": "tsc --noEmit",
+    "customer": "yarn workspace @beautlyai/customer start",
+    "business": "yarn workspace @beautlyai/business start",
+    "build:all": "yarn workspace @beautlyai/customer build ; yarn workspace @beautlyai/business build",
+    "lint": "eslint apps/ packages/ --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit --project tsconfig.base.json",
     "test": "jest",
-    "test:coverage": "jest --coverage",
-    "publish:staging": "expo publish --non-interactive --release-channel staging"
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -50,6 +52,5 @@
     "jest-expo": "~54.0.13",
     "react-test-renderer": "19.1.0",
     "typescript": "~5.9.2"
-  },
-  "private": true
+  }
 }

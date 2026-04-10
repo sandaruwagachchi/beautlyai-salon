@@ -1,0 +1,12 @@
+{
+  "name": "@beautlyai/api",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "private": true,
+  "dependencies": {
+    "@react-navigation/native": "^7.1.18",
+    "axios": "^1.14.0",
+    "expo-secure-store": "~15.0.8"
+  }
+}

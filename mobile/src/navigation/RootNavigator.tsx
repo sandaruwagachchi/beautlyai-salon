@@ -8,15 +8,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { ActivityIndicator, View } from 'react-native';
 import { useAuthStore } from '../store';
 import { authService } from '../services';
-import CustomerNavigator from './CustomerNavigator';
-import StaffNavigator from './StaffNavigator';
-import OwnerNavigator from './OwnerNavigator';
-import AdminNavigator from './AdminNavigator';
-import AuthNavigator from './AuthNavigator';
+import RoleGuard from './RoleGuard';
 
 const RootNavigator: React.FC = () => {
   const [initializing, setInitializing] = useState(true);
-  const { user, isAuthenticated, setUser, setToken } = useAuthStore();
+  const { setUser, setToken } = useAuthStore();
 
   useEffect(() => {
     const bootstrapAsync = async () => {
@@ -42,7 +38,7 @@ const RootNavigator: React.FC = () => {
     };
 
     bootstrapAsync();
-  }, []);
+  }, [setToken, setUser]);
 
   if (initializing) {
     return (
@@ -54,19 +50,7 @@ const RootNavigator: React.FC = () => {
 
   return (
     <NavigationContainer>
-      {!isAuthenticated ? (
-        <AuthNavigator />
-      ) : user?.role === 'CUSTOMER' ? (
-        <CustomerNavigator />
-      ) : user?.role === 'STAFF' ? (
-        <StaffNavigator />
-      ) : user?.role === 'OWNER' ? (
-        <OwnerNavigator />
-      ) : user?.role === 'ADMIN' ? (
-        <AdminNavigator />
-      ) : (
-        <AuthNavigator />
-      )}
+      <RoleGuard />
     </NavigationContainer>
   );
 };

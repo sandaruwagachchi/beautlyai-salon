@@ -1,0 +1,27 @@
+{
+  "name": "@beautlyai/customer",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "build": "eas build --platform all --non-interactive"
+  },
+  "dependencies": {
+    "@beautlyai/ui": "*",
+    "@beautlyai/api": "*",
+    "@beautlyai/auth": "*",
+    "@beautlyai/notifications": "*",
+    "@react-navigation/bottom-tabs": "^7.4.2",
+    "@react-navigation/native": "^7.1.18",
+    "@react-navigation/native-stack": "^7.3.25",
+    "expo": "~54.0.33",
+    "expo-notifications": "~0.32.16",
+    "expo-secure-store": "~15.0.8",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-paper": "^5.15.0"
+  }
+}
