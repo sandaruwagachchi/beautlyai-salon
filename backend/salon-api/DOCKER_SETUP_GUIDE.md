@@ -183,7 +183,6 @@ docker compose up -d
 
 ## Production Deployment Notes
 - Before production, update:
-  - `STRIPE_SECRET_KEY` (real Stripe key)
   - `JWT_SECRET` (strong random string)
   - `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY` (real AWS credentials)
 - Remove `DEBUG: 0` and sensitive env vars from docker-compose.yml

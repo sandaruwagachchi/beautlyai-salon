@@ -1,0 +1,15 @@
+# Keep Docker context small when building from backend/
+**/target
+**/.idea
+**/*.log
+**/*.err
+**/*.out
+**/.DS_Store
+**/node_modules
+**/.env
+**/.env.*
+
+# Git metadata
+.git
+.gitignore
+

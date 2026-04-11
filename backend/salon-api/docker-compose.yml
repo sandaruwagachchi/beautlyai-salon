@@ -7,103 +7,20 @@ services:
       POSTGRES_USER: beautlyai_admin
       POSTGRES_PASSWORD: dev_password_123
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - salon-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U beautlyai_admin -d beautlyai_dev"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - salon-network
-
-  redis:
-    image: redis:7-alpine
-    container_name: beautlyai-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - salon-network
-
-  localstack:
-    image: localstack/localstack
-    container_name: beautlyai-localstack
-    ports:
-      - "4566:4566"
-    environment:
-      SERVICES: s3,sqs,sns,ssm
-      DEFAULT_REGION: ap-southeast-1
-      DEBUG: 0
-      DOCKER_HOST: unix:///var/run/docker.sock
-    volumes:
-      - localstack_data:/tmp/localstack
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - salon-network
-
-  adminer:
-    image: adminer:latest
-    container_name: beautlyai-adminer
-    ports:
-      - "8090:8080"
-    environment:
-      ADMINER_DEFAULT_SERVER: postgres
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - salon-network
-
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: beautlyai-api
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_PROFILES_ACTIVE: local
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/beautlyai_dev
-      SPRING_DATASOURCE_USERNAME: beautlyai_admin
-      SPRING_DATASOURCE_PASSWORD: dev_password_123
-      SPRING_REDIS_HOST: redis
-      SPRING_REDIS_PORT: 6379
-      AWS_REGION: ap-southeast-1
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test
-      STRIPE_SECRET_KEY: sk_test_mock_for_local
-      JWT_SECRET: dev-secret-key-change-in-production
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      localstack:
-        condition: service_started
-    networks:
-      - salon-network
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      start_period: 40s
-      retries: 3
+    restart: unless-stopped
 
 volumes:
   postgres_data:
-    driver: local
-  redis_data:
-    driver: local
-  localstack_data:
     driver: local
 
 networks:

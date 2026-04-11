@@ -16,7 +16,6 @@ Local Development Stack
 │   └── AWS SNS: Pub/Sub topics
 └── Spring Boot API (Port 8080)
     ├── Caffeine Cache (in-memory)
-    ├── Stripe (test mode)
     └── JWT Authentication (24h expiry)
 ```
 
@@ -25,7 +24,6 @@ Local Development Stack
 - **Docker**: Windows, Mac, or Linux with Docker Desktop
 - **Java 21**: For running Spring Boot application
 - **Maven**: Or use `mvnw.cmd` wrapper included in project
-- **Stripe Account**: Test mode keys for payment processing
 
 ### Quick Start
 
@@ -56,7 +54,6 @@ beautylai-localstack    localstack/localstack    4566:4566
 
 # Or manually set environment variables
 $env:SPRING_PROFILES_ACTIVE = "local"
-$env:STRIPE_SECRET_KEY = "sk_test_YOUR_KEY"
 $env:JWT_SECRET = "dev-secret-key"
 ```
 
@@ -277,71 +274,6 @@ public class NotificationService {
 
 ---
 
-## 5.5 Stripe Configuration (Test Mode)
-
-### Getting Test API Keys
-
-1. **Create Stripe Account**: https://stripe.com
-2. **Enable Test Mode**: Toggle in dashboard
-3. **Get Test Keys**: https://dashboard.stripe.com/test/apikeys
-4. **Copy Keys:**
-   - Secret Key: `sk_test_...`
-   - Webhook Secret: `whsec_...`
-
-### Configure in Application
-
-**Set Environment Variables:**
-```powershell
-$env:STRIPE_SECRET_KEY = "sk_test_YOUR_SECRET_KEY"
-$env:STRIPE_WEBHOOK_SECRET = "whsec_YOUR_WEBHOOK_SECRET"
-```
-
-**In application-local.yml:**
-```yaml
-stripe:
-  api-key: ${STRIPE_SECRET_KEY}
-  api-version: "2023-10-16"
-  webhook-secret: ${STRIPE_WEBHOOK_SECRET}
-```
-
-### Using Stripe in Code
-
-```java
-@Service
-@RequiredArgsConstructor
-public class PaymentService {
-    private final StripeClient stripeClient;
-    
-    public void processPayment(String customerId, long amountInCents) {
-        ChargeCreateParams params = ChargeCreateParams.builder()
-            .setAmount(amountInCents)
-            .setCurrency("usd")
-            .setCustomer(customerId)
-            .setDescription("Salon service booking")
-            .build();
-        
-        try {
-            Charge charge = Charge.create(params);
-            // Payment processed
-        } catch (StripeException e) {
-            // Handle error
-        }
-    }
-}
-```
-
-### Test Credit Cards
-
-```
-Visa (Success):           4242 4242 4242 4242
-Visa (Declined):          4000 0000 0000 0002
-Mastercard (Success):     5555 5555 5555 4444
-Amex (Success):           3782 822463 10005
-```
-
-Any future expiry date and any 3-digit CVC works in test mode.
-
----
 
 ## 5.6 JWT Authentication
 

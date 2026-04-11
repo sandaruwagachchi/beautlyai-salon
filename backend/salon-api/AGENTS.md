@@ -6,7 +6,7 @@
 
 - **Bootstrap**: `src/main/java/com/beautlyai/salon/SalonApiApplication.java`
 - **Component Root**: `com.beautlyai.salon` (all code must be scanned here)
-- **Pre-scaffolded Features** (empty, ready): `auth/`, `booking/`, `client/`, `notification/`, `payment/`, `staff/`
+- **Pre-scaffolded Features** (empty, ready): `auth/`, `booking/`, `client/`, `notification/`, `staff/`
 - **DB**: PostgreSQL on `localhost:5432` (beautylai_dev / beautylai_admin / dev_password_123)
 
 ## Feature-Driven Architecture (Key Rule)
@@ -167,31 +167,11 @@ When building the `auth/` feature:
 - **Logging**: Root level INFO; package-level DEBUG for `com.beautlyai.salon`
 
 ### Adding Config for a Feature
-1. Add properties to `application.properties` (e.g., `app.payment.stripe-key=...`)
-2. Create a `@ConfigurationProperties` class in the feature package (e.g., `PaymentConfig.java`)
-3. Enable with `@EnableConfigurationProperties(PaymentConfig.class)` in feature config
+1. Add properties to `application.properties` only for active runtime features.
+2. Create a `@ConfigurationProperties` class in the feature package.
+3. Enable it with `@EnableConfigurationProperties(...)` in feature config.
 
-### Example: Payment Feature Config
-```java
-// In payment/ package
-@Data
-@ConfigurationProperties(prefix = "app.payment")
-public class PaymentConfig {
-    private String stripeKey;
-    private String webhookSecret;
-}
-
-@Configuration
-@EnableConfigurationProperties(PaymentConfig.class)
-public class PaymentConfiguration {
-}
-```
-
-Then in `application.properties`:
-```properties
-app.payment.stripe-key=sk_test_...
-app.payment.webhook-secret=whsec_...
-```
+> Note: `payment/` is intentionally not used in this project because the platform does not include payment features.
 
 ## Testing Conventions
 

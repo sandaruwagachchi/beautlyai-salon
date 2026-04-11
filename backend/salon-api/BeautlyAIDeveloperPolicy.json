@@ -1,0 +1,67 @@
+﻿{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "S3DevAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::beautlyai-dev-*",
+        "arn:aws:s3:::beautlyai-dev-*/*"
+      ]
+    },
+    {
+      "Sid": "SQSDevAccess",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:SendMessage",
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+      ],
+      "Resource": "arn:aws:sqs:*:*:beautlyai-dev-*"
+    },
+    {
+      "Sid": "SNSDevAccess",
+      "Effect": "Allow",
+      "Action": [
+        "sns:Publish"
+      ],
+      "Resource": "arn:aws:sns:*:*:beautlyai-dev-*"
+    },
+    {
+      "Sid": "SSMDevRead",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:GetParametersByPath"
+      ],
+      "Resource": "arn:aws:ssm:*:*:parameter/beautlyai/dev/*"
+    },
+    {
+      "Sid": "ECRPullAccess",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:BatchCheckLayerAvailability"
+      ],
+      "Resource": "arn:aws:ecr:*:*:repository/beautlyai-*"
+    },
+    {
+      "Sid": "DenyIAMAdmin",
+      "Effect": "Deny",
+      "Action": [
+        "iam:*",
+        "organizations:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

@@ -20,11 +20,9 @@ AWS_ACCESS_KEY_ID=test
 AWS_SECRET_ACCESS_KEY=test
 LOCALSTACK_ENDPOINT=http://localhost:4566
 
-# ========== Stripe (Test Mode) ==========
-# Get your test API key from https://dashboard.stripe.com/test/apikeys
-STRIPE_SECRET_KEY=sk_test_your_test_api_key_here
-STRIPE_WEBHOOK_SECRET=whsec_test_your_webhook_secret_here
-STRIPE_API_VERSION=2024-04-10
+# ========== Payments ==========
+# This project does not include payment features.
+# Keep payment-related secrets out of the environment template.
 
 # ========== JWT (24-hour expiry in local) ==========
 # Generate a secure random string for production:
@@ -61,7 +59,7 @@ APP_FEATURES_DEBUG_MODE=true
 APP_FEATURES_S3_ENABLED=true
 APP_FEATURES_SQS_ENABLED=true
 APP_FEATURES_SNS_ENABLED=true
-APP_FEATURES_STRIPE_ENABLED=true
+# APP_FEATURES_STRIPE_ENABLED is intentionally omitted.
 
 # ========== CORS Configuration ==========
 APP_SECURITY_CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4200,http://localhost:8081

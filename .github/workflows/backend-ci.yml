@@ -1,112 +1,103 @@
-name: Backend CI
+name: Backend CI/CD
 
 on:
   push:
-    branches: [main, develop, feature/**]
+    branches: [main, develop]
     paths:
       - "backend/**"
       - ".github/workflows/backend-ci.yml"
   pull_request:
-    branches: [develop, main]
+    branches: [main, develop]
     paths:
       - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+permissions:
+  contents: read
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        java-version: ["17", "21"]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: beautlyai_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U test -d beautlyai_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK ${{ matrix.java-version }}
+      - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java-version }}
-          distribution: "temurin"
-          cache: maven
-
-      - name: Build with Maven
-        run: cd backend/salon-api && mvn clean package -DskipTests
-
-      - name: Run tests
-        run: cd backend/salon-api && mvn test
-
-      - name: Generate coverage report
-        run: cd backend/salon-api && mvn jacoco:report || true
-
-  code-quality:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
+          distribution: temurin
           java-version: "21"
-          distribution: "temurin"
           cache: maven
 
-      - name: Check code style with Checkstyle
-        run: cd backend/salon-api && mvn checkstyle:check || true
+      - name: Run backend tests
+        working-directory: backend/salon-api
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/beautlyai_test
+          SPRING_DATASOURCE_USERNAME: test
+          SPRING_DATASOURCE_PASSWORD: test
+          SPRING_PROFILES_ACTIVE: local
+        run: ./mvnw -B test
 
-      - name: Analyze with SpotBugs
-        run: cd backend/salon-api && mvn spotbugs:check || true
-
-  security-scan:
+  build-and-deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          java-version: "21"
-          distribution: "temurin"
-          cache: maven
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-1
 
-      - name: Run OWASP Dependency Check
-        run: cd backend/salon-api && mvn dependency-check:check || true
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Upload SBOM
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: sbom
-          path: backend/salon-api/target/bom.xml
-
-  build-docker:
-    runs-on: ubuntu-latest
-    needs: [build-and-test]
-    if: github.event_name == 'push' && github.ref_protected
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: "21"
-          distribution: "temurin"
-          cache: maven
-
-      - name: Build JAR
-        run: cd backend/salon-api && mvn clean package -DskipTests
-
-      - name: Create Dockerfile
+      - name: Build and push Docker image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          cat > backend/salon-api/Dockerfile << 'EOF'
-          FROM eclipse-temurin:21-jre-alpine
-          WORKDIR /app
-          COPY target/*.jar app.jar
-          EXPOSE 8080
-          ENTRYPOINT ["java", "-jar", "app.jar"]
-          EOF
+          docker build -t beautlyai-api backend/salon-api
+          docker tag beautlyai-api:latest $ECR_REGISTRY/beautlyai-api:$IMAGE_TAG
+          docker push $ECR_REGISTRY/beautlyai-api:$IMAGE_TAG
 
-      - name: Build Docker image
-        run: cd backend/salon-api && docker build -t salon-api:latest .
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        with:
+          envs: ECR_REGISTRY,IMAGE_TAG
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin $ECR_REGISTRY
+            docker pull $ECR_REGISTRY/beautlyai-api:$IMAGE_TAG
+            docker stop beautlyai-api || true
+            docker rm beautlyai-api || true
+            docker run -d --name beautlyai-api \
+              -p 8080:8080 \
+              -e SPRING_PROFILE=dev \
+              --restart unless-stopped \
+              $ECR_REGISTRY/beautlyai-api:$IMAGE_TAG

@@ -1,0 +1,57 @@
+# Example Terraform Variables Override File
+# Copy this to terraform.tfvars and customize for your environment
+
+# AWS Region
+aws_region = "us-east-1"
+
+# Environment Name
+environment = "dev"
+
+# IAM User Name (must exist in AWS)
+dev_user_name = "beautlyai-dev-user"
+
+# IAM Policy Name
+policy_name = "BeautlyAIDeveloperPolicy"
+
+# S3 Bucket Names (all must follow beautlyai-dev-* pattern)
+s3_buckets = [
+  "beautlyai-dev-uploads",
+  "beautlyai-dev-exports",
+  "beautlyai-dev-static"
+]
+
+# SQS Queue Names (all must follow beautlyai-dev-* pattern)
+sqs_queues = [
+  "beautlyai-dev-notifications",
+  "beautlyai-dev-email",
+  "beautlyai-dev-export-jobs"
+]
+
+# SNS Topic Names (all must follow beautlyai-dev-* pattern)
+sns_topics = [
+  "beautlyai-dev-alerts",
+  "beautlyai-dev-notifications",
+  "beautlyai-dev-booking-events"
+]
+
+# ECR Repository Names (all must follow beautlyai-dev-* pattern)
+ecr_repositories = [
+  "beautlyai-dev-backend",
+  "beautlyai-dev-frontend",
+  "beautlyai-dev-worker"
+]
+
+# Common Tags for all Resources
+tags = {
+  Project     = "BeautlyAI"
+  Environment = "dev"
+  ManagedBy   = "Terraform"
+  CostCenter  = "Development"
+  Owner       = "DevOps"
+}
+
+# Optional: Uncomment to use custom backend configuration
+# backend_bucket = "beautlyai-terraform-state"
+# backend_key    = "dev/iam/terraform.tfstate"
+# backend_region = "us-east-1"
+

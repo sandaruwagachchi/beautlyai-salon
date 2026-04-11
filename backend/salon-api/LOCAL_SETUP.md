@@ -23,15 +23,11 @@ This guide covers running the salon-api locally using Docker Compose with minima
 
 ### Environment Variables (Optional)
 ```bash
-# Override with your test credentials (highly recommended)
-export STRIPE_SECRET_KEY=sk_test_your_actual_test_key
+# Override with your secure development values
 export JWT_SECRET=your-secure-dev-secret
-export STRIPE_WEBHOOK_SECRET=whsec_test_your_key
 
 # For Windows PowerShell:
-$env:STRIPE_SECRET_KEY="sk_test_your_actual_test_key"
 $env:JWT_SECRET="your-secure-dev-secret"
-$env:STRIPE_WEBHOOK_SECRET="whsec_test_your_key"
 ```
 
 ---
@@ -179,12 +175,6 @@ services: s3, sqs, sns, ssm
 credentials: test / test (fake)
 ```
 
-### Stripe (Test Mode)
-```yaml
-stripe:
-  api-key: ${STRIPE_SECRET_KEY:sk_test_mock_key_for_local_development}
-  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_test_}
-```
 
 ### JWT (24-hour expiry)
 ```yaml
@@ -366,7 +356,6 @@ Before deploying to production (AWS t2.micro):
   - [ ] Replace in-memory auth with JWT (auth/ feature)
   - [ ] Change JWT_SECRET to strong random value
   - [ ] Change database password (not `dev_password_123`)
-  - [ ] Change Stripe API key to production
 
 - [ ] **Database**
   - [ ] Enable Flyway migrations (`spring.flyway.enabled=true`)

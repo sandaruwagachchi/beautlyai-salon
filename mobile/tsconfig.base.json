@@ -1,0 +1,19 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@beautlyai/ui": ["packages/ui/index.ts"],
+      "@beautlyai/api": ["packages/api/index.ts"],
+      "@beautlyai/auth": ["packages/auth/index.ts"],
+      "@beautlyai/notifications": ["packages/notifications/index.ts"]
+    }
+  },
+  "include": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "packages/**/*.ts",
+    "packages/**/*.tsx"
+  ]
+}

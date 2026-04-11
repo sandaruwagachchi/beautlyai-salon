@@ -3,47 +3,35 @@ spring:
     name: salon-api
 
   datasource:
-    url: jdbc:postgresql://postgres:5432/beautlyai_dev
+    url: jdbc:postgresql://localhost:5433/beautlyai_dev
     username: beautlyai_admin
-    password: dev_password_123
+    password: ${SPRING_DATASOURCE_PASSWORD:dev_password_123}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5
-      minimum-idle: 2
-      connection-timeout: 20000
-      idle-timeout: 300000
-      max-lifetime: 1200000
+      minimum-idle: 1
+      connection-timeout: 30000
 
   jpa:
     hibernate:
       ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
   flyway:
     enabled: false
 
   cache:
-    type: redis
-    redis:
-      time-to-live: 600000
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=300s
 
-  data:
-    redis:
-      host: redis
-      port: 6379
-      timeout: 5000ms
-      connect-timeout: 5000ms
-      client-type: lettuce
-      lettuce:
-        pool:
-          enabled: true
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
+server:
+  port: 8080
 
 management:
   endpoints:
@@ -55,14 +43,21 @@ management:
     health:
       show-details: always
 
-server:
-  port: 8080
-
-logging:
-  level:
-    root: INFO
-    com.beautlyai.salon: DEBUG
-
-# JVM memory settings for t2.micro (1GB RAM):
-# -Xms256m -Xmx512m
-# application:
+app:
+  security:
+    allowed-origins: ${APP_ALLOWED_ORIGINS:http://localhost:8081,http://127.0.0.1:8081,http://localhost:19006,http://127.0.0.1:19006}
+  aws:
+    region: ap-southeast-1
+    localstack:
+      endpoint: http://localhost:4566
+      access-key: test
+      secret-key: test
+  jwt:
+    secret: ${JWT_SECRET_BASE64:YmVhdXRseWFpLWRldi1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tZ2VuZXJhdGlvbi1zaG91bGQtYmUtYXQtbGVhc3QtMjU2LWJpdHM=}
+    expiration-ms: 86400000
+  notification:
+    retry:
+      max-attempts: 3
+    sqs:
+      queue-name: beautlyai-notifications.fifo
+      queue-url: ${BEAUTLYAI_NOTIFICATIONS_QUEUE_URL:}

@@ -1,0 +1,295 @@
+# Optional: Complete Infrastructure Terraform Module
+# This file provides additional resource definitions for a complete setup
+# Include these in your Terraform configuration to create all required resources
+
+# ============================================================================
+# AWS S3 Buckets for Development
+# ============================================================================
+
+resource "aws_s3_bucket" "dev_uploads" {
+  bucket = "beautlyai-dev-uploads-${data.aws_caller_identity.current.account_id}"
+
+  tags = {
+    Name        = "BeautlyAI Dev Uploads"
+    Purpose     = "User profile pictures, salon images"
+    Environment = var.environment
+  }
+}
+
+resource "aws_s3_bucket_versioning" "dev_uploads" {
+  bucket = aws_s3_bucket.dev_uploads.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "dev_uploads" {
+  bucket = aws_s3_bucket.dev_uploads.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket" "dev_exports" {
+  bucket = "beautlyai-dev-exports-${data.aws_caller_identity.current.account_id}"
+
+  tags = {
+    Name        = "BeautlyAI Dev Exports"
+    Purpose     = "Booking reports, salon analytics exports"
+    Environment = var.environment
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "dev_exports" {
+  bucket = aws_s3_bucket.dev_exports.id
+
+  rule {
+    id     = "delete_old_exports"
+    status = "Enabled"
+
+    expiration {
+      days = 7  # Delete after 7 days for dev
+    }
+  }
+}
+
+resource "aws_s3_bucket" "dev_static" {
+  bucket = "beautlyai-dev-static-${data.aws_caller_identity.current.account_id}"
+
+  tags = {
+    Name        = "BeautlyAI Dev Static Assets"
+    Purpose     = "Frontend CSS, JS, images (public read)"
+    Environment = var.environment
+  }
+}
+
+resource "aws_s3_bucket_acl" "dev_static" {
+  bucket = aws_s3_bucket.dev_static.id
+  acl    = "public-read"
+}
+
+resource "aws_s3_bucket_public_access_block" "dev_static" {
+  bucket = aws_s3_bucket.dev_static.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# ============================================================================
+# AWS SQS Queues for Background Jobs
+# ============================================================================
+
+resource "aws_sqs_queue" "notifications" {
+  name                       = "beautlyai-dev-notifications"
+  message_retention_seconds  = 86400  # 24 hours
+  visibility_timeout_seconds = 300    # 5 minutes
+
+  tags = {
+    Purpose     = "Email and push notifications"
+    Environment = var.environment
+  }
+}
+
+resource "aws_sqs_queue" "email" {
+  name                       = "beautlyai-dev-email"
+  message_retention_seconds  = 86400
+  visibility_timeout_seconds = 300
+
+  tags = {
+    Purpose     = "Email queue (confirmations, receipts)"
+    Environment = var.environment
+  }
+}
+
+resource "aws_sqs_queue" "export_jobs" {
+  name                       = "beautlyai-dev-export-jobs"
+  message_retention_seconds  = 604800  # 7 days
+  visibility_timeout_seconds = 900     # 15 minutes
+
+  tags = {
+    Purpose     = "Long-running export tasks"
+    Environment = var.environment
+  }
+}
+
+# ============================================================================
+# AWS SNS Topics for Pub/Sub Events
+# ============================================================================
+
+resource "aws_sns_topic" "alerts" {
+  name = "beautlyai-dev-alerts"
+
+  tags = {
+    Purpose     = "System alerts and errors"
+    Environment = var.environment
+  }
+}
+
+resource "aws_sns_topic" "notifications" {
+  name = "beautlyai-dev-notifications"
+
+  tags = {
+    Purpose     = "Booking confirmations, reminders"
+    Environment = var.environment
+  }
+}
+
+resource "aws_sns_topic" "booking_events" {
+  name = "beautlyai-dev-booking-events"
+
+  tags = {
+    Purpose     = "Booking created/updated/cancelled"
+    Environment = var.environment
+  }
+}
+
+# ============================================================================
+# AWS ECR Repositories for Docker Images
+# ============================================================================
+
+resource "aws_ecr_repository" "backend" {
+  name                 = "beautlyai-dev-backend"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Purpose     = "Spring Boot API"
+    Environment = var.environment
+  }
+}
+
+resource "aws_ecr_repository" "frontend" {
+  name                 = "beautlyai-dev-frontend"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Purpose     = "React/Next.js web UI"
+    Environment = var.environment
+  }
+}
+
+resource "aws_ecr_repository" "worker" {
+  name                 = "beautlyai-dev-worker"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Purpose     = "Background job worker"
+    Environment = var.environment
+  }
+}
+
+# ============================================================================
+# AWS Systems Manager Parameter Store for Secrets
+# ============================================================================
+
+resource "aws_ssm_parameter" "db_password" {
+  name  = "/beautlyai/dev/db/password"
+  type  = "SecureString"
+  value = var.db_password  # Pass via terraform.tfvars
+
+  tags = {
+    Purpose     = "PostgreSQL password"
+    Environment = var.environment
+  }
+}
+
+resource "aws_ssm_parameter" "jwt_secret" {
+  name  = "/beautlyai/dev/jwt/secret"
+  type  = "SecureString"
+  value = var.jwt_secret  # Pass via terraform.tfvars
+
+  tags = {
+    Purpose     = "JWT signing secret"
+    Environment = var.environment
+  }
+}
+
+# ============================================================================
+# Data Sources and Outputs
+# ============================================================================
+
+data "aws_caller_identity" "current" {}
+
+output "s3_buckets" {
+  value = {
+    uploads = aws_s3_bucket.dev_uploads.id
+    exports = aws_s3_bucket.dev_exports.id
+    static  = aws_s3_bucket.dev_static.id
+  }
+}
+
+output "sqs_queues" {
+  value = {
+    notifications = aws_sqs_queue.notifications.url
+    email         = aws_sqs_queue.email.url
+    export_jobs   = aws_sqs_queue.export_jobs.url
+  }
+}
+
+output "sns_topics" {
+  value = {
+    alerts         = aws_sns_topic.alerts.arn
+    notifications  = aws_sns_topic.notifications.arn
+    booking_events = aws_sns_topic.booking_events.arn
+  }
+}
+
+output "ecr_repositories" {
+  value = {
+    backend_uri  = aws_ecr_repository.backend.repository_url
+    frontend_uri = aws_ecr_repository.frontend.repository_url
+    worker_uri   = aws_ecr_repository.worker.repository_url
+  }
+}
+
+# ============================================================================
+# Variables for Secrets (add to variables.tf)
+# ============================================================================
+# variable "db_password" {
+#   type        = string
+#   sensitive   = true
+#   description = "PostgreSQL password"
+# }
+#
+# variable "jwt_secret" {
+#   type        = string
+#   sensitive   = true
+#   description = "JWT signing secret"
+# }
+
+# ============================================================================
+# Usage Instructions
+# ============================================================================
+#
+# 1. Copy this entire file to terraform/resources.tf
+#
+# 2. Add secret variables to variables.tf:
+#    variable "db_password" { type = string; sensitive = true }
+#    variable "jwt_secret" { type = string; sensitive = true }
+#
+# 3. Create terraform.tfvars with secrets:
+#    db_password       = "dev_password_123"
+#    jwt_secret        = "your-jwt-secret-here"
+#
+# 4. Apply:
+#    terraform plan
+#    terraform apply
+#
+# ============================================================================
+

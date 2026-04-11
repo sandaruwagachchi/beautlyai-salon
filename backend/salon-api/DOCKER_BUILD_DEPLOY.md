@@ -90,7 +90,6 @@ docker run -p 8080:8080 \
   -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/beautylai_dev \
   -e SPRING_DATASOURCE_USERNAME=beautylai_admin \
   -e SPRING_DATASOURCE_PASSWORD=dev_password_123 \
-  -e STRIPE_SECRET_KEY=sk_test_YOUR_KEY \
   -e JWT_SECRET=your-secret-key \
   beautlyai-api:local
 ```
@@ -121,7 +120,6 @@ docker run -p 8080:8080 \
   -e SPRING_DATASOURCE_URL=jdbc:postgresql://prod-db.example.com:5432/beautylai_prod \
   -e SPRING_DATASOURCE_USERNAME=prod_user \
   -e SPRING_DATASOURCE_PASSWORD=prod_password_123 \
-  -e STRIPE_SECRET_KEY=sk_live_YOUR_LIVE_KEY \
   -e JWT_SECRET=your-prod-secret-key \
   --restart always \
   beautlyai-api:1.0.0
@@ -144,7 +142,6 @@ docker run -p 8080:8080 \
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `STRIPE_SECRET_KEY` | `sk_test_mock_for_local` | Stripe API key |
 | `JWT_SECRET` | `dev-secret-key-...` | JWT signing secret |
 | `SPRING_REDIS_HOST` | `redis` | Redis host |
 | `SPRING_REDIS_PORT` | `6379` | Redis port |
@@ -157,7 +154,6 @@ backend:
   environment:
     SPRING_PROFILES_ACTIVE: local
     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/beautylai_dev
-    STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}  # From .env file
     JWT_SECRET: ${JWT_SECRET}                 # From .env file
 ```
 
@@ -166,8 +162,6 @@ backend:
 Create `.env` in project root:
 
 ```env
-STRIPE_SECRET_KEY=sk_test_YOUR_TEST_KEY
-STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET
 JWT_SECRET=your-jwt-secret-key-here
 ```
 
@@ -477,8 +471,8 @@ docker run --read-only --tmpfs /tmp beautlyai-api
 # Limit resources
 docker run --cpus="1.0" --memory="512m" beautlyai-api
 
-# Use secrets management
-docker run --secret stripe_key beautlyai-api
+# Use secrets management for app secrets only
+docker run --secret app_secret beautlyai-api
 ```
 
 ---
@@ -511,7 +505,6 @@ docker-compose up -d
       {"name": "SPRING_DATASOURCE_URL", "value": "...rds..."}
     ],
     "secrets": [
-      {"name": "STRIPE_SECRET_KEY", "valueFrom": "arn:aws:secretsmanager:..."}
     ]
   }]
 }
