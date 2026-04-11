@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: beautlyai-postgres
+    environment:
+      POSTGRES_DB: beautlyai_dev
+      POSTGRES_USER: beautlyai_admin
+      POSTGRES_PASSWORD: dev_password_123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - salon-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U beautlyai_admin -d beautlyai_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  salon-network:
+    driver: bridge

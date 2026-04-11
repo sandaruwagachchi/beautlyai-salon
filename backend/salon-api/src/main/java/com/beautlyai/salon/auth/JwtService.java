@@ -1,0 +1,86 @@
+package com.beautlyai.salon.auth;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import java.util.Date;
+import java.util.function.Function;
+import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+@Service
+public class JwtService {
+
+    private final String jwtSecret;
+    private final long jwtExpirationMs;
+
+    public JwtService(
+        @Value("${app.jwt.secret}") String jwtSecret,
+        @Value("${app.jwt.expiration-ms}") long jwtExpirationMs
+    ) {
+        this.jwtSecret = jwtSecret;
+        this.jwtExpirationMs = jwtExpirationMs;
+    }
+
+    /**
+     * Generates a signed JWT token for a user.
+     *
+     * @param userDetails authenticated user details
+     * @return signed JWT token string
+     */
+    public String generateToken(UserDetails userDetails) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + jwtExpirationMs);
+
+        return Jwts
+            .builder()
+            .subject(userDetails.getUsername())
+            .issuedAt(now)
+            .expiration(expiry)
+            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+            .compact();
+    }
+
+    /**
+     * Extracts username (subject) from a token.
+     *
+     * @param token JWT token
+     * @return username value
+     */
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    /**
+     * Validates token ownership and expiration.
+     *
+     * @param token JWT token
+     * @param userDetails user details used for comparison
+     * @return true if token belongs to user and is not expired
+     */
+    public boolean validateToken(String token, UserDetails userDetails) {
+        String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        Claims claims = Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
+        return claimsResolver.apply(claims);
+    }
+
+    private boolean isTokenExpired(String token) {
+        Date expiration = extractClaim(token, Claims::getExpiration);
+        return expiration.before(new Date());
+    }
+
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+}
+
+
