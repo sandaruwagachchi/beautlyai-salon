@@ -58,7 +58,11 @@ const RootNavigator: React.FC = () => {
       return;
     }
 
-    navigateToHome();
+    const timer = setTimeout(() => {
+      navigateToHome();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [token, user]);
 
   if (isBootstrapping) {

@@ -4,12 +4,18 @@ import AdminHomeScreen from '../screens/admin/AdminHomeScreen';
 import PlatformOverviewScreen from '../screens/admin/PlatformOverviewScreen';
 import KycReviewScreen from '../screens/admin/KycReviewScreen';
 import AuditLogsScreen from '../screens/admin/AuditLogsScreen';
+import LogoutHeaderButton from './LogoutHeaderButton';
+import type { AdminStackParamList } from './types';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<AdminStackParamList>();
 
 const AdminNavigator: React.FC = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerRight: () => <LogoutHeaderButton />,
+      }}
+    >
       <Stack.Screen name="AdminHome" component={AdminHomeScreen} options={{ title: 'Admin' }} />
       <Stack.Screen
         name="PlatformOverview"

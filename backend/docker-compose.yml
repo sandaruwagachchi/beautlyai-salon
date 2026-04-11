@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: postgres123
       POSTGRES_INIT_ARGS: "-c shared_preload_libraries=''"
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db/01-create-app-user.sql:/docker-entrypoint-initdb.d/01-create-app-user.sql

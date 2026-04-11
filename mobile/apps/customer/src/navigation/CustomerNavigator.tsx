@@ -12,6 +12,7 @@ import NotificationCenterScreen from '../screens/notifications/NotificationCente
 import AccountScreen from '../screens/profile/AccountScreen';
 import HistoryScreen from '../screens/profile/HistoryScreen';
 import PreferencesScreen from '../screens/profile/PreferencesScreen';
+import LogoutHeaderButton from './LogoutHeaderButton';
 import type {
   BookingStackParamList,
   HomeStackParamList,
@@ -34,7 +35,12 @@ const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 const HomeNavigator: React.FC = () => {
   return (
-    <HomeStack.Navigator initialRouteName="Dashboard">
+    <HomeStack.Navigator
+      initialRouteName="Dashboard"
+      screenOptions={{
+        headerRight: () => <LogoutHeaderButton />,
+      }}
+    >
       <HomeStack.Screen name="Dashboard" component={CustomerHomeScreen} options={{ title: 'Dashboard' }} />
       <HomeStack.Screen name="Loyalty" component={LoyaltyScreen} options={{ title: 'Loyalty rewards' }} />
       <HomeStack.Screen
@@ -48,7 +54,12 @@ const HomeNavigator: React.FC = () => {
 
 const BookingNavigator: React.FC = () => {
   return (
-    <BookingStack.Navigator initialRouteName="ServiceSelection">
+    <BookingStack.Navigator
+      initialRouteName="ServiceSelection"
+      screenOptions={{
+        headerRight: () => <LogoutHeaderButton />,
+      }}
+    >
       <BookingStack.Screen
         name="ServiceSelection"
         component={ServiceSelectionScreen}
@@ -70,7 +81,12 @@ const BookingNavigator: React.FC = () => {
 
 const NotificationsNavigator: React.FC = () => {
   return (
-    <NotificationStack.Navigator initialRouteName="NotificationCenter">
+    <NotificationStack.Navigator
+      initialRouteName="NotificationCenter"
+      screenOptions={{
+        headerRight: () => <LogoutHeaderButton />,
+      }}
+    >
       <NotificationStack.Screen
         name="NotificationCenter"
         component={NotificationCenterScreen}
@@ -82,7 +98,11 @@ const NotificationsNavigator: React.FC = () => {
 
 const ProfileNavigator: React.FC = () => {
   return (
-    <ProfileStack.Navigator>
+    <ProfileStack.Navigator
+      screenOptions={{
+        headerRight: () => <LogoutHeaderButton />,
+      }}
+    >
       <ProfileStack.Screen name="Account" component={AccountScreen} options={{ title: 'Account' }} />
       <ProfileStack.Screen name="History" component={HistoryScreen} options={{ title: 'History' }} />
       <ProfileStack.Screen name="Preferences" component={PreferencesScreen} options={{ title: 'Preferences' }} />

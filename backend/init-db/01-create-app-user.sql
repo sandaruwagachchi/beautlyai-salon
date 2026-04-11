@@ -1,5 +1,6 @@
 -- Create beautlyai_admin user for the application
 -- Use default password hashing (SCRAM-SHA-256 for PostgreSQL 15)
+DROP ROLE IF EXISTS beautlyai_admin;
 CREATE ROLE beautlyai_admin WITH LOGIN PASSWORD 'dev_password_123';
 
 -- Grant privileges on the beautlyai_dev database

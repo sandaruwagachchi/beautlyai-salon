@@ -9,10 +9,6 @@ export const setAuthRouteName = (routeName: string): void => {
   authRouteName = routeName;
 };
 
-export const setHomeRouteName = (routeName: string): void => {
-  homeRouteName = routeName;
-};
-
 export const navigateToAuth = (): void => {
   if (!navigationRef.isReady()) {
     return;

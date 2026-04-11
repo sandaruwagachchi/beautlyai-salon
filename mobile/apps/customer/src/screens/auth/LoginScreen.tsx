@@ -3,7 +3,7 @@ import { View, StyleSheet, Platform, Pressable } from 'react-native';
 import { HelperText, Text, TextInput } from 'react-native-paper';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AxiosError } from 'axios';
-import { authApi } from '@beautlyai/api';
+import { authApi, navigateToHome } from '@beautlyai/api';
 import { useAuthStore, tokenService } from '@beautlyai/auth';
 import type { CustomerAuthStackParamList } from '../../navigation/RootNavigator';
 
@@ -43,9 +43,13 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         role: response.role,
       });
 
-      // On web, force a hard transition so bootstrap reads persisted session and loads app stack.
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        // On web, force a hard transition so bootstrap reads persisted session and loads the app stack.
         window.location.reload();
+      } else {
+        setTimeout(() => {
+          navigateToHome();
+        }, 0);
       }
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string; error?: string }>;

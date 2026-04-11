@@ -2,6 +2,9 @@
 # This script properly sets up environment variables and starts the Spring Boot application
 # Includes automatic Docker container startup and verification
 
+# Always run from this script's directory so relative paths are stable.
+Set-Location $PSScriptRoot
+
 # Load development environment
 Write-Host "Loading environment configuration..." -ForegroundColor Cyan
 . .\setup-env.ps1
@@ -12,13 +15,15 @@ Write-Host "══════════════════════�
 Write-Host "Starting Docker containers..." -ForegroundColor Yellow
 Write-Host "═══════════════════════════════════════════════════════" -ForegroundColor Cyan
 
+$composeFile = Join-Path (Split-Path -Parent $PSScriptRoot) 'docker-compose.yml'
+
 # Stop and remove existing containers to ensure clean state
 Write-Host "Cleaning up existing containers..."
-docker-compose down --remove-orphans 2>$null
+docker-compose -f $composeFile down --remove-orphans 2>$null
 
 # Start containers
 Write-Host "Starting PostgreSQL and services..."
-docker-compose up -d
+docker-compose -f $composeFile up -d
 
 # Wait for PostgreSQL to be ready
 Write-Host "Waiting for PostgreSQL to be ready..."
@@ -26,9 +31,9 @@ $maxAttempts = 30
 $attempt = 0
 while ($attempt -lt $maxAttempts) {
     try {
-        $result = docker-compose exec -T postgres pg_isready -U beautlyai_admin -d beautlyai_dev 2>$null
+        $result = docker-compose -f $composeFile exec -T postgres pg_isready -U beautlyai_admin -d beautlyai_dev 2>$null
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "✓ PostgreSQL is ready!" -ForegroundColor Green
+            Write-Host "[OK] PostgreSQL is ready!" -ForegroundColor Green
             break
         }
     }
@@ -40,8 +45,8 @@ while ($attempt -lt $maxAttempts) {
 }
 
 if ($attempt -eq $maxAttempts) {
-    Write-Host "✗ PostgreSQL failed to start. Check Docker logs:" -ForegroundColor Red
-    docker-compose logs postgres
+    Write-Host "[ERROR] PostgreSQL failed to start. Check Docker logs:" -ForegroundColor Red
+    docker-compose -f $composeFile logs postgres
     exit 1
 }
 
@@ -86,8 +91,7 @@ Write-Host "══════════════════════�
 Write-Host ""
 
 # Run Spring Boot with Maven
-& .\mvnw.cmd spring-boot:run `
-    -Dspring-boot.run.arguments="--spring.profiles.active=$($env:SPRING_PROFILES_ACTIVE) --spring.datasource.url=$($env:SPRING_DATASOURCE_URL) --spring.datasource.username=$($env:SPRING_DATASOURCE_USERNAME) --spring.datasource.password=$($env:SPRING_DATASOURCE_PASSWORD)"
+& .\mvnw.cmd spring-boot:run
 
 
 
